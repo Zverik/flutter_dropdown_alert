@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) => Stack(
         children: [
           child!,
-          DropdownAlert()
+          DropdownAlert(position: AlertPosition.TOP)
         ],
       ),
       home: MyHomePage(title: 'Flutter Dropdown Alert Demo'),
