@@ -5,6 +5,7 @@ import 'alert_controller.dart';
 import 'model/data_alert.dart';
 
 typedef VoidCallBack = void Function(Map<String, dynamic>?, TypeAlert);
+
 enum AlertPosition { TOP, BOTTOM }
 
 class DropdownAlert extends StatefulWidget {
@@ -35,8 +36,8 @@ class DropdownAlert extends StatefulWidget {
   // Change style of title
   final TextStyle? titleStyle;
 
-  //Avoid bottom padding inset
-  final bool avoidBottomInset;
+  //Avoid top or bottom padding inset
+  final bool avoidInset;
 
   // Change style of content
   final TextStyle? contentStyle;
@@ -72,7 +73,7 @@ class DropdownAlert extends StatefulWidget {
       this.maxLinesContent,
       this.duration,
       this.delayDismiss,
-      this.avoidBottomInset = false,
+      this.avoidInset = true,
       this.showCloseButton,
       this.position = AlertPosition.TOP})
       : super(key: key);
@@ -261,6 +262,18 @@ class DropdownAlertWidget extends State<DropdownAlert>
     final contentStyle =
         TextStyle(color: Colors.white).merge(widget.contentStyle);
     String? iconUri = getIconUri(this.type);
+
+    final double bottomInset =
+        (widget.position == AlertPosition.BOTTOM && widget.avoidInset
+            ? (MediaQuery.of(context).padding.bottom +
+                MediaQuery.of(context).viewInsets.bottom)
+            : 0);
+    final double topInset =
+        (widget.position == AlertPosition.TOP && widget.avoidInset
+            ? (MediaQuery.of(context).padding.top +
+                MediaQuery.of(context).viewInsets.top)
+            : 0);
+
     return AnimatedBuilder(
       animation: _animationController!,
       builder: (c, v) => Positioned(
@@ -276,8 +289,8 @@ class DropdownAlertWidget extends State<DropdownAlert>
             child: MaterialButton(
               color: getBackground(this.type),
               padding: EdgeInsets.only(
-                  top: widget.position == AlertPosition.TOP ? 36 : 18,
-                  bottom: 18 + ( widget.avoidBottomInset ? (MediaQuery.of(context).padding.bottom + MediaQuery.of(context).viewInsets.bottom) : 0),
+                  top: 18.0 + topInset,
+                  bottom: 18.0 + bottomInset,
                   left: 12,
                   right: 12),
               shape: new RoundedRectangleBorder(
@@ -306,31 +319,42 @@ class DropdownAlertWidget extends State<DropdownAlert>
                         child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        this.title != "" ? Text(
-                          this.title ?? '',
-                          style: titleStyle,
-                          maxLines: widget.maxLinesTitle,
-                        ) : SizedBox(),
+                        this.title != ""
+                            ? Text(
+                                this.title ?? '',
+                                style: titleStyle,
+                                maxLines: widget.maxLinesTitle,
+                              )
+                            : SizedBox(),
                         SizedBox(
-                          height: this.title == "" || this.message == "" ? 0 : 6,
+                          height:
+                              this.title == "" || this.message == "" ? 0 : 6,
                         ),
-                        this.message != "" ? Text(
-                          this.message ?? '',
-                          style: contentStyle,
-                          maxLines: widget.maxLinesContent,
-                        ) : SizedBox()
+                        this.message != ""
+                            ? Text(
+                                this.message ?? '',
+                                style: contentStyle,
+                                maxLines: widget.maxLinesContent,
+                              )
+                            : SizedBox()
                       ],
                     )),
-                    widget.showCloseButton == true ? IconButton(onPressed: onCloseAlert, icon: widget.closeImage != null ? Image.asset(
-                      widget.closeImage!,
-                      fit: BoxFit.contain,
-                      height: 20,
-                      width: 20,
-                    ) : Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 24,
-                    )) : SizedBox()
+                    widget.showCloseButton == true
+                        ? IconButton(
+                            onPressed: onCloseAlert,
+                            icon: widget.closeImage != null
+                                ? Image.asset(
+                                    widget.closeImage!,
+                                    fit: BoxFit.contain,
+                                    height: 20,
+                                    width: 20,
+                                  )
+                                : Icon(
+                                    Icons.close,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ))
+                        : SizedBox()
                   ],
                 ),
               ),
